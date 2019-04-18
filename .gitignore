@@ -1,0 +1,12 @@
+node_modules/
+lib/
+dist/
+.cache/
+.#*
+cypress/fixtures/
+cypress/fixtures/*
+cypress/screenshots/*
+cypress/screenshots/
+*~
+.rt2*
+.rts2*

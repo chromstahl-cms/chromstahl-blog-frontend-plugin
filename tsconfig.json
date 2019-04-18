@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "ES2015",
+        "moduleResolution": "node",
+        "newLine": "LF",
+        "outDir": "./lib/",
+        "target": "es5",
+        "sourceMap": false,
+	"strict": true,
+	"strictNullChecks": false,
+        "declaration": true,
+        "jsx": "preserve",
+        "lib": [
+            "es2017",
+            "dom",
+            "esnext"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        ".git",
+        "node_modules"
+    ]
+}

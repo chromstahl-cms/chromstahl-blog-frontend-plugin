@@ -1,0 +1,26 @@
+{
+    "name": "chromstahl-blog-frontend-plugin",
+    "version": "1.0.0",
+    "description": "The frontend part for the chromstahl blog plugin",
+    "main": "lib/index.js",
+    "source": "src/index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "microbundle"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/chromstahl-cms/chromstahl-blog-frontend-plugin.git"
+    },
+    "author": "Kloudsoftware",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/chromstahl-cms/chromstahl-blog-frontend-plugin/issues"
+    },
+    "homepage": "https://github.com/chromstahl-cms/chromstahl-blog-frontend-plugin#readme",
+    "dependencies": {},
+    "devDependencies": {
+        "microbundle": "^0.11.0",
+        "@kloudsoftware/chromstahl-plugin": "1.0.1"
+    }
+}
