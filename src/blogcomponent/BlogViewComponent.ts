@@ -6,6 +6,8 @@ import { HttpClient } from "@kloudsoftware/chromstahl-plugin";
 import { parseStrIntoVNode, parseIntoUnmanaged } from '@kloudsoftware/eisen';
 import { blog1, blog2 } from "./DummyBlog";
 import { css } from "./blogcss"
+import { BlogPostDTO } from './dto';
+
 
 export class BlogViewComponent extends Component {
     build(app: VApp): ComponentBuildFunc {
@@ -17,27 +19,28 @@ export class BlogViewComponent extends Component {
 
 
             root.appendChild(scopedCss);
-            //TODO get blogposts
-            //TODO translate response into Props
             const blogMount = app.k("div", { attrs: [id("blogMount")] })
-            const blogEntries = [blog1, blog2];
-            const posts: Props[] = blogEntries.map(entry => {
-                const map = new Map();
-                map.set("heading", entry.heading);
-                map.set("htmlString", entry.text);
-                map.set("dateString", entry.date);
-                return map;
-            }).map(entry => new Props(app, entry));
+            root.appendChild(blogMount);
+            // TODO: Scope for current user?
+            http.peformGet("/blog").then(r => {
+                // TODO: Maybe unify "error" handling here?
+                if (r.status != 200) {
+                    return Promise.reject("Non 200 status code while fetching block posts");
+                }
+
+                return r.json().then(j => j as Array<BlogPostDTO>);
+            }).then(entries => {
+                entries.forEach(entry => {
+                    const map = new Map();
+                    map.set("heading", entry.title);
+                    map.set("htmlString", entry.content);
+                    map.set("dateString", entry.published);
+                    app.mountComponent(new BlogViewComponent(), blogMount, new Props(app, map));
+                });
+            });
 
             return {
-                mounted: () => {
-                    console.log("Mounted");
-                    root.appendChild(blogMount);
-                    posts.forEach(prop => {
-                        app.mountComponent(new BlogPostViewComponent(), blogMount, prop);
-                    });
-
-                },
+                mounted: () => {},
 
                 unmounted: () => {
                     console.log("unmounted");
