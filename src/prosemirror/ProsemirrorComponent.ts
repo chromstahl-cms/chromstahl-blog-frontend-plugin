@@ -47,7 +47,6 @@ export class ProsemirrorComponent extends Component {
                         const http = app.get<HttpClient>("http");
                         let btn = app.createElement("button", "getTextFromEditor", root);
                         app.eventHandler.registerEventListener("click", (_, button) => {
-                            console.log(document.querySelector('.ProseMirror').innerHTML);
                             const dto = new BlogRequestDTO();
                             dto.title = "this comes from prosemirror";
                             dto.content = document.querySelector('.ProseMirror').innerHTML;
@@ -58,6 +57,9 @@ export class ProsemirrorComponent extends Component {
                         }, btn);
                     });
 
+                },
+                unmounted: () => {
+                    console.log(document.querySelector('.ProseMirror').innerHTML);
                 }
             }
         }
