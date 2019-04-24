@@ -52,6 +52,7 @@ export class ProsemirrorComponent extends Component {
                             dto.title = "this comes from prosemirror";
                             dto.content = document.querySelector('.ProseMirror').innerHTML;
 
+                            debugger;
                             http.performPost("/admin/blog/publish", dto)
                                 .then(r => console.log(r))
                                 .catch(e => console.error(e));
