@@ -9,3 +9,8 @@ export class BlogPostDTO {
     content: string;
     author: AuthorDTO;
 }
+
+export class BlogRequestDTO {
+    title: string;
+    content: string;
+}
