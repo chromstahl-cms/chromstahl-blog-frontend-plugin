@@ -14,6 +14,7 @@ import { inputRules } from "prosemirror-inputrules";
 import css from "./prosecss";
 import { HttpClient } from '@kloudsoftware/chromstahl-plugin';
 import { BlogRequestDTO } from '../blogcomponent/dto';
+import { OrderedMap } from '@jimpick/orderedmap';
 
 
 export class ProsemirrorComponent extends Component {
@@ -30,7 +31,7 @@ export class ProsemirrorComponent extends Component {
                     mount.addOnDomEventOrExecute(($mount) => {
                         console.log("prose mounting to: ", $mount);
 
-                        const nodes = schema.spec.nodes;
+                        const nodes : OrderedMap<NodeSpec> = schema.spec.nodes;
                         const mySchema = new Schema({
                             nodes: addListNodes(nodes, "paragraph block*", "block"),
                             marks: schema.spec.marks
