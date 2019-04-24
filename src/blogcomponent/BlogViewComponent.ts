@@ -29,7 +29,7 @@ export class BlogViewComponent extends Component {
                     map.set("heading", entry.title);
                     map.set("htmlString", entry.content);
                     map.set("dateString", entry.published);
-                    app.mountComponent(new BlogViewComponent(), blogMount, new Props(app, map));
+                    app.mountComponent(new BlogPostViewComponent(), blogMount, new Props(app, map));
                 });
             });
 
