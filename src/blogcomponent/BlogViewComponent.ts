@@ -7,29 +7,23 @@ import { parseStrIntoVNode, parseIntoUnmanaged } from '@kloudsoftware/eisen';
 import { blog1, blog2 } from "./DummyBlog";
 import { css } from "./blogcss"
 import { BlogPostDTO } from './dto';
+import { BlogService } from './BlogService';
 
 
 export class BlogViewComponent extends Component {
     build(app: VApp): ComponentBuildFunc {
         return (root: VNode, props: Props) => {
+            const service = new BlogService(app.get<HttpClient>("http"));
             root.addClass("container center-container");
 
             const scopedCss = app.k("style", { value: css })
-            const http = app.get<HttpClient>("http");
-
 
             root.appendChild(scopedCss);
             const blogMount = app.k("div", { attrs: [id("blogMount")] })
             root.appendChild(blogMount);
-            // TODO: Scope for current user?
-            http.peformGet("/blog").then(r => {
-                // TODO: Maybe unify "error" handling here?
-                if (r.status != 200) {
-                    return Promise.reject("Non 200 status code while fetching block posts");
-                }
 
-                return r.json().then(j => j as Array<BlogPostDTO>);
-            }).then(entries => {
+            // TODO: Scope for current user?
+            service.getAllBlogPosts().then(entries => {
                 entries.forEach(entry => {
                     const map = new Map();
                     map.set("heading", entry.title);
