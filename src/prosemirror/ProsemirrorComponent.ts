@@ -23,8 +23,8 @@ export class ProsemirrorComponent extends Component {
             root.addClass("container center-container");
             const editorWrapper = app.k("div", {attrs: [id("editorWrapper"), cssClass("card")]});
             root.appendChild(editorWrapper);
+            app.createElement("style", css, root);
             let mount = app.createUnmanagedNode(editorWrapper);
-            app.createElement("style", css, mount);
 
             const nodes : OrderedMap<NodeSpec> = schema.spec.nodes;
             const mySchema = new Schema({
@@ -60,7 +60,6 @@ export class ProsemirrorComponent extends Component {
                         Array.from(mount.htmlElement.childNodes)
                             .forEach($child => $mount.removeChild($child));
 
-                        app.createElement("style", css, mount);
                         const editor = new EditorView($mount, {
                             state: EditorState.create({
                                 doc: DOMParser.fromSchema(mySchema).parse($mount),
