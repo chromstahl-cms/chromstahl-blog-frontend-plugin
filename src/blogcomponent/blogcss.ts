@@ -48,6 +48,14 @@ export const css = `
   padding-left: 30px;
 }
 
+.blogTextContainer ul {
+    list-style: disc;
+}
+
+.blogTextContainer ol {
+    list-style: decimal;
+}
+
 .blogTextContainer blockquote {
   padding-left: 1em;
   border-left: 3px solid #eee;
