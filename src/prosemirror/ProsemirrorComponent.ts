@@ -57,10 +57,6 @@ export class ProsemirrorComponent extends Component {
                 },
                 remount: () => {
                     mount.addOnDomEventOrExecute(($mount) => {
-                        mount.$getChildren()
-                            .map(child => child.htmlElement)
-                            .forEach($child => $mount.removeChild($child));
-
                         const editor = new EditorView($mount, {
                             state: EditorState.create({
                                 doc: DOMParser.fromSchema(mySchema).parse($mount),
