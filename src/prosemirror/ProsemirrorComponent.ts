@@ -25,24 +25,21 @@ export class ProsemirrorComponent extends Component {
             root.appendChild(editorWrapper);
             let mount = app.createUnmanagedNode(editorWrapper);
             app.createElement("style", css, mount);
-            //this is called when the component is mounted to the dom
+
+            const nodes : OrderedMap<NodeSpec> = schema.spec.nodes;
+            const mySchema = new Schema({
+                nodes: addListNodes(nodes, "paragraph block*", "block"),
+                marks: schema.spec.marks
+            });
             return {
                 mounted: () => {
                     mount.addOnDomEventOrExecute(($mount) => {
-                        console.log("prose mounting to: ", $mount);
-
-                        const nodes : OrderedMap<NodeSpec> = schema.spec.nodes;
-                        const mySchema = new Schema({
-                            nodes: addListNodes(nodes, "paragraph block*", "block"),
-                            marks: schema.spec.marks
-                        })
-
                         const editor = new EditorView($mount, {
                             state: EditorState.create({
                                 doc: DOMParser.fromSchema(mySchema).parse($mount),
                                 plugins: exampleSetup({ schema: mySchema })
                             })
-                        })
+                        });
 
                         const http = app.get<HttpClient>("http");
                         let btn = app.createElement("button", "getTextFromEditor", root);
@@ -58,8 +55,19 @@ export class ProsemirrorComponent extends Component {
                     });
 
                 },
-                unmounted: () => {
-                    console.log(document.querySelector('.ProseMirror').innerHTML);
+                remount: () => {
+                    mount.addOnDomEventOrExecute(($mount) => {
+                        mount.$getChildren()
+                            .map(child => child.htmlElement)
+                            .forEach($child => $mount.removeChild($child));
+
+                        const editor = new EditorView($mount, {
+                            state: EditorState.create({
+                                doc: DOMParser.fromSchema(mySchema).parse($mount),
+                                plugins: exampleSetup({ schema: mySchema })
+                            })
+                        });
+                    });
                 }
             }
         }
