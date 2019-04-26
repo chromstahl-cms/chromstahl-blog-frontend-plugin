@@ -1,4 +1,4 @@
-import { Component, ComponentBuildFunc, ComponentProps, id, cssClass } from '@kloudsoftware/eisen';
+import { Component, ComponentBuildFunc, ComponentProps, id, cssClass, placeholder, VInputNode } from '@kloudsoftware/eisen';
 import { VNode } from '@kloudsoftware/eisen';
 import { Props } from '@kloudsoftware/eisen';
 import { VApp } from '@kloudsoftware/eisen';
@@ -16,14 +16,33 @@ import { HttpClient } from '@kloudsoftware/chromstahl-plugin';
 import { BlogRequestDTO } from '../blogcomponent/dto';
 import { OrderedMap } from '@jimpick/orderedmap';
 
+class HeadingHolder {
+    heading: string;
+}
 
 export class ProsemirrorComponent extends Component {
     public build(app: VApp): ComponentBuildFunc {
         return (root: VNode, props: Props): ComponentProps => {
             root.addClass("container center-container");
-            const editorWrapper = app.k("div", {attrs: [id("editorWrapper"), cssClass("card")]});
-            root.appendChild(editorWrapper);
+            const card = app.k("div", {attrs: [id("editorCard"), cssClass("card")]}, [
+                app.k("h2", { value: "Write a new post"}),
+            ]);
             app.createElement("style", css, root);
+            const btn = app.k("div", { value: "Publish", attrs: [cssClass("btn btn-confirm")]});
+            const titleInput = app.k("input", { attrs: [placeholder("Enter your headline")] }) as VInputNode;
+
+            const headingHolder = new HeadingHolder();
+
+            titleInput.bindObject(headingHolder, "heading");
+
+            const headDiv = app.k("div", { attrs: [cssClass("headDiv")] }, [
+                titleInput,
+                btn
+            ]);
+            const editorWrapper = app.k("div", { attrs: [cssClass("editorWrapper")]});
+            card.appendChild(headDiv);
+            card.appendChild(editorWrapper);
+            root.appendChild(card);
             let mount = app.createUnmanagedNode(editorWrapper);
 
             const nodes : OrderedMap<NodeSpec> = schema.spec.nodes;
@@ -42,14 +61,11 @@ export class ProsemirrorComponent extends Component {
                         });
 
                         const http = app.get<HttpClient>("http");
-                        let btn = app.createElement("button", "getTextFromEditor", root);
                         app.eventHandler.registerEventListener("click", (_, button) => {
                             const dto = new BlogRequestDTO();
-                            dto.title = "this comes from prosemirror";
+                            dto.title = headingHolder.heading;
                             dto.content = document.querySelector('.ProseMirror').innerHTML;
-
                             http.performPost("/admin/blog/publish", dto)
-                                .then(r => console.log(r))
                                 .catch(e => console.error(e));
                         }, btn);
                     });

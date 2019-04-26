@@ -328,13 +328,37 @@ const css = `.ProseMirror [%%%TARGET%%%%] {
   
   .ProseMirror p { margin-bottom: 1em }
 
-  #editorWrapper {
+  #editorCard {
       margin-top: 3rem;
       margin-bottom: 3rem;
       width: 50vw;
       min-height: 20rem;
-      border: 1px solid #c0c0c0;
   }
+
+  #editorCard > h2 {
+      margin: 1rem;
+  }
+
+  .headDiv {
+      margin: 1rem;
+      display: flex;
+  }
+
+  .headDiv > input {
+      width: 100%;
+      margin-right: 1rem;
+  }
+
+  .headDiv .btn-confirm {
+      margin-left: auto;
+      padding: 0.5rem;
+      width: 4rem;
+      text-align: center;
+  }
+
+  .editorWrapper {
+  }
+
   `
 
 export default css;
