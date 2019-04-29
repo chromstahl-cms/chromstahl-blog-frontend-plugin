@@ -25,4 +25,11 @@ export class BlogService implements IBlogService {
         const json = await res.json();
         return json as Array<BlogPostDTO>;
     }
+
+    async getBlogPostById(id: number): Promise<BlogPostDTO> {
+        const res = await this.httpClient.peformGet(`/blog/entry/${id}`);
+
+        const json = await res.json();
+        return json as BlogPostDTO;
+    }
 }

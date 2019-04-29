@@ -1,4 +1,4 @@
-import { Component, ComponentBuildFunc, cssClass } from '@kloudsoftware/eisen';
+import { Component, ComponentBuildFunc, cssClass, RouterLink } from '@kloudsoftware/eisen';
 import { VApp } from '@kloudsoftware/eisen';
 import { VNode, id } from '@kloudsoftware/eisen';
 import { Props } from '@kloudsoftware/eisen';
@@ -22,10 +22,15 @@ export class BlogViewComponent extends Component {
             const blogMount = app.k("div", { attrs: [id("blogMount")] })
             root.appendChild(blogMount);
 
+            const blogPostIdProp: number = props.getProp("_id") as number;
+
+            const posts: Promise<Array<BlogPostDTO>> = blogPostIdProp != undefined ? service.getBlogPostById(blogPostIdProp).then(b => [b]) : service.getAllBlogPosts();
+
             // TODO: Scope for current user?
-            service.getAllBlogPosts().then(entries => {
+            posts.then(entries => {
                 entries.reverse().forEach(entry => {
                     const map = new Map();
+                    map.set("id", entry.id);
                     map.set("heading", entry.title);
                     map.set("htmlString", entry.content);
                     map.set("dateString", entry.published);
@@ -53,8 +58,11 @@ export class BlogPostViewComponent extends Component {
             let containerdiv = app.k("div")
             containerdiv.addClass("card blogPostContainer");
             const dateString = new Date(props.getProp("dateString")).toLocaleDateString();
+            const permaLink = new RouterLink(app, `/${props.getProp("id")}`, [
+                app.k("h1", { value: props.getProp("heading") })
+            ]);
             const headDiv = app.k("div", {attrs: [cssClass("blogHeadingContainer")]}, [
-                app.k("h1", { value: props.getProp("heading") }),
+                permaLink,
                 app.k("p", { value: dateString })
             ]);
 

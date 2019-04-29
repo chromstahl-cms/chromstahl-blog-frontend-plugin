@@ -4,6 +4,7 @@ export class AuthorDTO {
 }
 
 export class BlogPostDTO {
+    id: number;
     title: string;
     published: Date;
     content: string;

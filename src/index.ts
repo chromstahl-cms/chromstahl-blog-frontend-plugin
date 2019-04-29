@@ -7,6 +7,7 @@ export default class RegisterPlugin implements Registration {
     register(): Map<string, Component> {
         const m = new Map<string, Component>();
         m.set("/", new BlogViewComponent());
+        m.set("/{id}", new BlogViewComponent());
         m.set("/admin/blog/new", new ProsemirrorComponent());
         return m;
     }
