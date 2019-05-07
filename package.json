@@ -20,7 +20,7 @@
     "homepage": "https://github.com/chromstahl-cms/chromstahl-blog-frontend-plugin#readme",
     "dependencies": {
         "microbundle": "^0.11.0",
-        "@kloudsoftware/chromstahl-plugin": "1.0.8",
+        "@kloudsoftware/chromstahl-plugin": "1.0.11",
         "prosemirror-example-setup": "^1.0.1",
         "prosemirror-inputrules": "^1.0.1",
         "prosemirror-model": "^1.7.0",

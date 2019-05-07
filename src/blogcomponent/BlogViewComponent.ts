@@ -60,7 +60,7 @@ export class BlogPostViewComponent extends Component {
             const dateString = new Date(props.getProp("dateString")).toLocaleDateString();
             const permaLink = new RouterLink(app, `/${props.getProp("id")}`, [
                 app.k("h1", { value: props.getProp("heading") })
-            ]);
+            ], "");
             const headDiv = app.k("div", {attrs: [cssClass("blogHeadingContainer")]}, [
                 permaLink,
                 app.k("p", { value: dateString })
