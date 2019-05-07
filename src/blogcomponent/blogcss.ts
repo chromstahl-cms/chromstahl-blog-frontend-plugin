@@ -8,16 +8,17 @@ export const css = `
     max-width: 50vw;
 }
 
-.blogTextContainer > * p {
-    margin-top: 0.5rem;
+.blogTextContainer > p {
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
-.blogHeadingContainer > h1,
-.blogHeadingContainer > h2,
-.blogHeadingContainer > h3,
-.blogHeadingContainer > h4,
-.blogHeadingContainer > h5,
-.blogHeadingContainer > h6 {
+.blogTextContainer > p:last-child {
+    margin-top: 16px;
+    margin-bottom: 0px;
+}
+
+.blog-heading {
     margin: 1rem;
     margin-left: 0;
     margin-top: 0;
@@ -29,9 +30,14 @@ export const css = `
     margin-bottom: 2em;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     padding: 2em;
+}
+
+@media (min-width:961px)  {
+    .blogTextContainer {
+        min-width: 45rem;
+    }
 }
 
 .blogHeadingContainer {
@@ -86,4 +92,29 @@ export const css = `
   background-color: silver;
   line-height: 2px;
 }
+
+.commentSectionDivider {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border-top: 2px solid rgba(0,0,0,.54);
+    width: 75px;
+}
+
+.commentDivider {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-top: 1px solid rgba(0,0,0,.30);
+    width: 50px;
+}
+
+.commentHeader {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.commentDate {
+    margin-left: auto;
+    color: #d1d1d1;
+}
+
 `
