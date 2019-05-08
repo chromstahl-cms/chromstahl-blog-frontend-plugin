@@ -24,7 +24,7 @@ export class BlogPostDTO implements Cloneable<BlogPostDTO> {
     public clone(): BlogPostDTO {
         const ret = new BlogPostDTO();
         ret.id = this.id;
-        ret.title = this.title + "grep here";
+        ret.title = this.title;
         ret.published = new Date(this.published.toISOString());
         ret.content = this.content;
         ret.author = this.author.clone();
