@@ -1,4 +1,4 @@
-import { Component, ComponentBuildFunc, cssClass, RouterLink, Cloneable } from '@kloudsoftware/eisen';
+import { Component, ComponentBuildFunc, cssClass, RouterLink, Cloneable, inputType, placeholder, VInputNode } from '@kloudsoftware/eisen';
 import { VApp } from '@kloudsoftware/eisen';
 import { VNode, id } from '@kloudsoftware/eisen';
 import { Props } from '@kloudsoftware/eisen';
@@ -6,7 +6,7 @@ import { HttpClient } from "@kloudsoftware/chromstahl-plugin";
 import { parseStrIntoVNode, parseIntoUnmanaged } from '@kloudsoftware/eisen';
 import { blog1, blog2 } from "./DummyBlog";
 import { css } from "./blogcss"
-import { BlogPostDTO, CommentDTO, AuthorDTO } from './dto';
+import { BlogPostDTO, AuthorDTO, CommentDTO } from './dto';
 import { BlogService } from './BlogService';
 
 
@@ -48,41 +48,71 @@ export class BlogViewComponent extends Component {
     }
 }
 
+class CommentInputDTO {
+    content: string;
+}
+
 export class BlogPostViewComponent extends Component {
+    private createBlogHeader(post: BlogPostDTO, mount: VNode, app: VApp) {
+        mount.addClass("card blogPostContainer");
+        const dateString = new Date(post.published).toLocaleDateString();
+        const permaLink = new RouterLink(app, `/${post.id}`, [
+            app.k("h1", { value: post.title, attrs: [cssClass("blog-heading")] })
+        ], "");
+        const headDiv = app.k("div", { attrs: [cssClass("blogHeadingContainer")] }, [
+            permaLink,
+            app.k("p", { value: dateString })
+        ]);
+
+        mount.appendChild(headDiv);
+    }
+
+    private mountComments(comments: Array<CommentDTO>, mount: VNode, app: VApp) {
+        const commentCount = comments == undefined ? 0 : comments.length;
+        if (commentCount > 0) {
+            mount.appendChild(app.k("div", { attrs: [cssClass("commentSectionDivider")] }));
+        }
+
+        for (let i = 0; i < commentCount; i++) {
+            const props = new Map<string, string>();
+            props.set("comment", JSON.stringify(comments[i]));
+
+            app.mountComponent(new CommentComponent(), mount, new Props(app, props));
+            if (i != commentCount - 1) {
+                mount.appendChild(app.k("div", { attrs: [cssClass("commentDivider")] }));
+            }
+        }
+    }
+
     build(app: VApp): ComponentBuildFunc {
         return (root: VNode, props: Props) => {
 
             const post = JSON.parse(props.getProp("post")) as BlogPostDTO;
             let containerdiv = app.k("div")
 
-            containerdiv.addClass("card blogPostContainer");
-            const dateString = new Date(post.published).toLocaleDateString();
-            const permaLink = new RouterLink(app, `/${post.id}`, [
-                app.k("h1", { value: post.title, attrs: [cssClass("blog-heading")] })
-            ], "");
-            const headDiv = app.k("div", { attrs: [cssClass("blogHeadingContainer")] }, [
-                permaLink,
-                app.k("p", { value: dateString })
-            ]);
+            this.createBlogHeader(post, containerdiv, app);
 
-
-            containerdiv.appendChild(headDiv);
             const textContainer = parseIntoUnmanaged(post.content, containerdiv);
             textContainer.addClass("blogTextContainer");
 
-            const commentCount = post.comments == undefined ? 0 : post.comments.length;
-            if (commentCount > 0) {
-                containerdiv.appendChild(app.k("div", { attrs: [cssClass("commentSectionDivider")] }));
-            }
+            const commentInput = app.k("input", {attrs: [inputType("text"), placeholder("type a comment")]}) as VInputNode;
+            const dto = new CommentInputDTO();
+            const http = app.get<HttpClient>("http");
+            commentInput.bindObject(dto, "content");
+            commentInput.addEventlistener("keyup", (e: KeyboardEvent, node) =>{
+                if (e.keyCode == 13) {
+                    http.performPost(`/blog/comment/${post.id}`, dto)
+                        .then(r => r.json())
+                        .then(json => {
+                            const props = new Map<string, string>();
+                            props.set("comment", JSON.stringify(json));
 
-            for (let i = 0; i < commentCount; i++) {
-                const map = new Map<string, string>();
-                map.set("comment", JSON.stringify(post.comments[i]));
-                app.mountComponent(new CommentComponent(), containerdiv, new Props(app, map));
-                if (i != commentCount - 1) {
-                    containerdiv.appendChild(app.k("div", { attrs: [cssClass("commentDivider")] }));
+                            app.mountComponent(new CommentComponent(), containerdiv, new Props(app, props));
+                        });
                 }
-            }
+            });
+            containerdiv.appendChild(commentInput);
+            this.mountComments(post.comments, containerdiv, app);
 
             root.appendChild(containerdiv);
 
