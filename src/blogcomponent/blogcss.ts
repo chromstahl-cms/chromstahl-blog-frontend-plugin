@@ -117,4 +117,10 @@ export const css = `
     color: #d1d1d1;
 }
 
+.commentInput {
+    margin-bottom: 2rem;
+    height: 2rem;
+    padding: 1rem;
+}
+
 `

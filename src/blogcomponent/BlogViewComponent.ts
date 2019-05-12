@@ -1,4 +1,4 @@
-import { Component, ComponentBuildFunc, cssClass, RouterLink, Cloneable, inputType, placeholder, VInputNode } from '@kloudsoftware/eisen';
+import { Component, ComponentBuildFunc, cssClass, RouterLink, Cloneable, inputType, placeholder, VInputNode, isDefinedAndNotEmpty } from '@kloudsoftware/eisen';
 import { VApp } from '@kloudsoftware/eisen';
 import { VNode, id } from '@kloudsoftware/eisen';
 import { Props } from '@kloudsoftware/eisen';
@@ -69,9 +69,6 @@ export class BlogPostViewComponent extends Component {
 
     private mountComments(comments: Array<CommentDTO>, mount: VNode, app: VApp) {
         const commentCount = comments == undefined ? 0 : comments.length;
-        if (commentCount > 0) {
-            mount.appendChild(app.k("div", { attrs: [cssClass("commentSectionDivider")] }));
-        }
 
         for (let i = 0; i < commentCount; i++) {
             const props = new Map<string, string>();
@@ -82,6 +79,18 @@ export class BlogPostViewComponent extends Component {
                 mount.appendChild(app.k("div", { attrs: [cssClass("commentDivider")] }));
             }
         }
+    }
+
+    private mountSingleComment(mount: VNode, dto: CommentInputDTO, post: BlogPostDTO, app: VApp, http: HttpClient): Promise<void> {
+        return http.performPost(`/blog/comment/${post.id}`, dto)
+            .then(r => r.json())
+            .then(json => {
+                mount.appendChild(app.k("div", { attrs: [cssClass("commentDivider")] }));
+                const props = new Map<string, string>();
+                props.set("comment", JSON.stringify(json));
+
+                app.mountComponent(new CommentComponent(), mount, new Props(app, props));
+            });
     }
 
     build(app: VApp): ComponentBuildFunc {
@@ -95,20 +104,21 @@ export class BlogPostViewComponent extends Component {
             const textContainer = parseIntoUnmanaged(post.content, containerdiv);
             textContainer.addClass("blogTextContainer");
 
-            const commentInput = app.k("input", {attrs: [inputType("text"), placeholder("type a comment")]}) as VInputNode;
+            containerdiv.appendChild(app.k("div", { attrs: [cssClass("commentSectionDivider")] }));
+
+            const commentInput = app.k("input", { attrs: [inputType("text"), placeholder("type a comment"), cssClass("commentInput")] }) as VInputNode;
             const dto = new CommentInputDTO();
             const http = app.get<HttpClient>("http");
-            commentInput.bindObject(dto, "content");
-            commentInput.addEventlistener("keyup", (e: KeyboardEvent, node) =>{
-                if (e.keyCode == 13) {
-                    http.performPost(`/blog/comment/${post.id}`, dto)
-                        .then(r => r.json())
-                        .then(json => {
-                            const props = new Map<string, string>();
-                            props.set("comment", JSON.stringify(json));
 
-                            app.mountComponent(new CommentComponent(), containerdiv, new Props(app, props));
-                        });
+            commentInput.bindObject(dto, "content");
+            commentInput.addEventlistener("keyup", (e: KeyboardEvent, node) => {
+                if (e.keyCode == 13 && isDefinedAndNotEmpty(dto.content)) {
+                    this.mountSingleComment(containerdiv, dto, post, app, http)
+                        .then(() => {
+                            // TODO: Work out an API in eisen for this
+                            (node.htmlElement as HTMLInputElement).value = "";
+                            dto.content = "";
+                        })
                 }
             });
             containerdiv.appendChild(commentInput);
