@@ -66,6 +66,13 @@ export class ProsemirrorComponent extends Component {
                             dto.title = headingHolder.heading;
                             dto.content = document.querySelector('.ProseMirror').innerHTML;
                             http.performPost("/admin/blog/publish", dto)
+                                .then((r: Response) => {
+                                    if (r.status == 200) {
+                                        app.router.resolveRoute("/");
+                                    } else {
+                                        Promise.reject(`Invalid response code: ${r.status}`)
+                                    }
+                                })
                                 .catch(e => console.error(e));
                         }, btn);
                     });

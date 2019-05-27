@@ -354,6 +354,7 @@ const css = `.ProseMirror [%%%TARGET%%%%] {
       padding: 0.5rem;
       width: 4rem;
       text-align: center;
+      cursor: pointer;
   }
 
   .editorWrapper {
