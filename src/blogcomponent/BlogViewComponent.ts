@@ -11,6 +11,22 @@ import { BlogService } from './BlogService';
 
 
 export class BlogViewComponent extends Component {
+    private fetchAndMountBlogPosts(service: BlogService, app: VApp, blogMount: VNode, blogPostIdProp: number) {
+        const posts: Promise<Array<BlogPostDTO>> = blogPostIdProp != undefined ? service.getBlogPostById(blogPostIdProp).then(b => [b]) : service.getAllBlogPosts();
+
+        // TODO: Scope for current user?
+        posts.then(entries => {
+            entries.reverse().forEach(entry => {
+                const map = new Map();
+                map.set("id", entry.id);
+                map.set("heading", entry.title);
+                map.set("htmlString", entry.content);
+                map.set("dateString", entry.published);
+                app.mountComponent(new BlogPostViewComponent(), blogMount, new Props(app, map));
+            });
+        });
+    }
+
     build(app: VApp): ComponentBuildFunc {
         return (root: VNode, props: Props) => {
             const service = new BlogService(app.get<HttpClient>("http"));
@@ -24,16 +40,7 @@ export class BlogViewComponent extends Component {
 
             const blogPostIdProp: number = props.getProp("_id") as number;
 
-            const posts: Promise<Array<BlogPostDTO>> = blogPostIdProp != undefined ? service.getBlogPostById(blogPostIdProp).then(b => [b]) : service.getAllBlogPosts();
-
-            // TODO: Scope for current user?
-            posts.then(entries => {
-                entries.reverse().forEach(entry => {
-                    const map = new Map<string, string>();
-                    map.set("post", JSON.stringify(entry));
-                    app.mountComponent(new BlogPostViewComponent(), blogMount, new Props(app, map));
-                });
-            });
+            this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);
 
             return {
                 mounted: () => { },
@@ -42,6 +49,13 @@ export class BlogViewComponent extends Component {
                     console.log("unmounted");
                 },
                 remount: () => {
+                    console.log(blogMount.$getChildren());
+                    blogMount.$getChildren().forEach(c => {
+                        if (c != undefined) {
+                            c.parent.removeChild(c)
+                        }
+                    });
+                    this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);
                 }
             }
         }
