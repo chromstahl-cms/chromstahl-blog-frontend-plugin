@@ -22,6 +22,7 @@ export class BlogService implements IBlogService {
         const res = await this.httpClient.peformGet("/blog");
         this.checkStatusCode(res);
 
+        //res.text().then(t => console.log(t));
         const json = await res.json();
         return json as Array<BlogPostDTO>;
     }

@@ -13,15 +13,10 @@ import { BlogService } from './BlogService';
 export class BlogViewComponent extends Component {
     private fetchAndMountBlogPosts(service: BlogService, app: VApp, blogMount: VNode, blogPostIdProp: number) {
         const posts: Promise<Array<BlogPostDTO>> = blogPostIdProp != undefined ? service.getBlogPostById(blogPostIdProp).then(b => [b]) : service.getAllBlogPosts();
-
-        // TODO: Scope for current user?
         posts.then(entries => {
             entries.reverse().forEach(entry => {
                 const map = new Map();
-                map.set("id", entry.id);
-                map.set("heading", entry.title);
-                map.set("htmlString", entry.content);
-                map.set("dateString", entry.published);
+                map.set("post", JSON.stringify(entry));
                 app.mountComponent(new BlogPostViewComponent(), blogMount, new Props(app, map));
             });
         });
@@ -49,13 +44,14 @@ export class BlogViewComponent extends Component {
                     console.log("unmounted");
                 },
                 remount: () => {
+                    console.log("Remounted blog component");
                     console.log(blogMount.$getChildren());
-                    blogMount.$getChildren().forEach(c => {
+                    /*blogMount.$getChildren().filter(c => c != undefined).forEach(c => {
                         if (c != undefined) {
                             c.parent.removeChild(c)
                         }
                     });
-                    this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);
+                    this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);*/
                 }
             }
         }
@@ -95,7 +91,7 @@ export class BlogPostViewComponent extends Component {
         }
     }
 
-    private mountSingleComment(mount: VNode, dto: CommentInputDTO, post: BlogPostDTO, app: VApp, http: HttpClient): Promise<void> {
+    private submitComment(mount: VNode, dto: CommentInputDTO, post: BlogPostDTO, app: VApp, http: HttpClient): Promise<void> {
         return http.performPost(`/blog/comment/${post.id}`, dto)
             .then(r => r.json())
             .then(json => {
@@ -120,14 +116,25 @@ export class BlogPostViewComponent extends Component {
 
             containerdiv.appendChild(app.k("div", { attrs: [cssClass("commentSectionDivider")] }));
 
-            const commentInput = app.k("input", { attrs: [inputType("text"), placeholder("type a comment"), cssClass("commentInput")] }) as VInputNode;
+            const commentPlaceholder = "Write a comment";
+            const commentInput = app.k("input", { attrs: [inputType("text"), placeholder(commentPlaceholder), cssClass("commentInput")] }) as VInputNode;
             const dto = new CommentInputDTO();
             const http = app.get<HttpClient>("http");
+            const authenticated = window.localStorage.getItem("token") != undefined;
+
+            if (!authenticated) {
+                commentInput.setAttribute("disabled", "true");
+                commentInput.setAttribute("placeholder", "You must be signed in to write a comment");
+                app.eventPipeLine.registerEvent("login", _ => {
+                    commentInput.removeAttribute("disabled");
+                    commentInput.setAttribute("placeholder", commentPlaceholder);
+                });
+            }
 
             commentInput.bindObject(dto, "content");
             commentInput.addEventlistener("keyup", (e: KeyboardEvent, node) => {
                 if (e.keyCode == 13 && isDefinedAndNotEmpty(dto.content)) {
-                    this.mountSingleComment(containerdiv, dto, post, app, http)
+                    this.submitComment(containerdiv, dto, post, app, http)
                         .then(() => {
                             // TODO: Work out an API in eisen for this
                             (node.htmlElement as HTMLInputElement).value = "";
