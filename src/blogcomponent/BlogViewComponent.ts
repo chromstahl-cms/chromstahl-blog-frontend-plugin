@@ -41,17 +41,12 @@ export class BlogViewComponent extends Component {
                 mounted: () => { },
 
                 unmounted: () => {
-                    console.log("unmounted");
                 },
                 remount: () => {
-                    console.log("Remounted blog component");
-                    console.log(blogMount.$getChildren());
-                    /*blogMount.$getChildren().filter(c => c != undefined).forEach(c => {
-                        if (c != undefined) {
-                            c.parent.removeChild(c)
-                        }
-                    });
-                    this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);*/
+                    blogMount.$getChildren()
+                        .filter(c => c != undefined)
+                        .forEach(c => app.unmountComponent(c));
+                    this.fetchAndMountBlogPosts(service, app, blogMount, blogPostIdProp);
                 }
             }
         }
@@ -149,11 +144,9 @@ export class BlogPostViewComponent extends Component {
 
             return {
                 mounted: () => {
-                    console.log("Mounted blogpost");
                 },
 
                 unmounted: () => {
-                    console.log("unmounted");
                 },
                 remount: () => {
                 }
